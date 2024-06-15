@@ -53,11 +53,18 @@ class WhisperModel:
 
         torch_dtype = get_device_preferred_dtype(self._device)
 
+        try:
+            import flash_attn
+            attn_impl = {"attn_implementation": "flash_attention_2"}
+        except ImportError:
+            attn_impl = {}
+        
         model = AutoModelForSpeechSeq2Seq.from_pretrained(
             self._model_path,
             torch_dtype=torch_dtype,
             low_cpu_mem_usage=True,
             use_safetensors=True,
+            **attn_impl
         )
         model.to(self._device)
 
